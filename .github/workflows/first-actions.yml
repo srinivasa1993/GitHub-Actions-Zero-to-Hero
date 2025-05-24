@@ -25,41 +25,40 @@ jobs:
       runs-on: self-hosted
       needs: compile
       steps:
-        - name: chechout code
-          uses: actions/checkout@v4
+      - name: chechout code
+        uses: actions/checkout@v4
 
-        - name: trivy installation
-          run:
-                sudo apt-get install -y wget apt-transport-https gnupg lsb-release
-                wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-                echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
-                sudo apt-get update -y
-                sudo apt-get install -y trivy
+      - name: trivy installation
+        run: |
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update -y
+          sudo apt-get install -y trivy
 
-        -  name: trivy Sf scan
-           run: trivy sf --format table -r report-trivy.json .
+      - name: trivy Sf scan
+        run: trivy sf --format table -r report-trivy.json .
 
-        -  name: installation of Gitleaks
-           run: sudo apt update sudo apt install gitleaks -y
+      - name: installation of Gitleaks
+        run: sudo apt update sudo apt install gitleaks -y
+ 
+      -  name: code scan gitleaks
+         run: gitleaks detect source . -r gitleaks-report.json -f json
+   test:
+     runs-on: self-hosted
+     needs: security-check
+     steps:
+     - name: checkout code
+       uses: actions/checkout@v4
 
-        -  name: code scan gitleaks
-           run: gitleaks detect source . -r gitleaks-report.json -f json
+     - name: setup jdk 17
+       uses: checkout/setup-java@v4
+       with:
+         java-version: '17'
+         distribution: 'temurin'
+         cache: maven
 
-        test:
-          runs-on: self-hosted
-          needs: security-check
-          steps:
-          - name: checkout code
-            uses: actions/checkout@v4
-
-          - name: setup jdk 17
-            uses: checkout/setup-java@v4
-            with:
-              java-version: '17'
-              distribution: 'temurin'
-              cache: maven
-
-          - name: unit test code
-            uses: mvn test
+     - name: unit test code
+       uses: mvn test
 
             
