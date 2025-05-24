@@ -42,9 +42,9 @@ jobs:
       - name: installation of Gitleaks
         run: sudo apt update sudo apt install gitleaks -y
  
-      -  name: code scan gitleaks
-         run: gitleaks detect source . -r gitleaks-report.json -f json
-   test:
+      - name: code scan gitleaks
+        run: gitleaks detect source . -r gitleaks-report.json -f json
+    test:
      runs-on: self-hosted
      needs: security-check
      steps:
@@ -59,6 +59,6 @@ jobs:
          cache: maven
 
      - name: unit test code
-       uses: mvn test
+       run: mvn test
 
             
