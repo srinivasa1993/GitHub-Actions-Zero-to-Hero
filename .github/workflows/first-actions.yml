@@ -4,10 +4,9 @@ on:
     branches: [ 'main' ]
 
 jobs:
-    compile:
-        runs-on: self-hosted
-
-        steps:
+  compile:
+    runs-on: self-hosted
+    steps:
         - name: git checkout
           uses: actions/checkout@v1
 
@@ -21,7 +20,7 @@ jobs:
         - name: build with maven
           run: mvn compile
 
-    security-check:
+  security-check:
       runs-on: self-hosted
       needs: compile
       steps:
@@ -44,7 +43,7 @@ jobs:
  
       - name: code scan gitleaks
         run: gitleaks detect source . -r gitleaks-report.json -f json
-    test:
+  test:
      runs-on: self-hosted
      needs: security-check
      steps:
